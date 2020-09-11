@@ -1,4 +1,4 @@
-# rest-kotlin-quickstart project
+# Quarkus Kotlin Quickstart Project
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
