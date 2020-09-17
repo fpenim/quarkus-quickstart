@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response
 @Consumes(MediaType.APPLICATION_JSON)
 class FruitResource(
         private val client: PgPool,
-        private val service: FruitService,
+        private val repository: FruitRepository,
 
         @ConfigProperty(name = "myapp.schema.create", defaultValue = "true")
         private val schemaCreate: Boolean
@@ -36,28 +36,28 @@ class FruitResource(
     }
 
     @GET
-    fun getFruits(): Multi<Fruit> = service.findAll()
+    fun getFruits(): Multi<Fruit> = repository.findAll()
 
     @GET
     @Path("{id}")
-    fun getFruit(@PathParam("id") id: Long): Uni<Response> = service.findById(id)
+    fun getFruit(@PathParam("id") id: Long): Uni<Response> = repository.findById(id)
             .onItem().transform { fruit -> if (fruit != null) Response.ok(fruit) else Response.status(Response.Status.NOT_FOUND) }
             .onItem().transform { responseBuilder -> responseBuilder.build() }
 
     @POST
-    fun createFruit(fruit: Fruit): Uni<Response> = service.save(fruit)
+    fun createFruit(fruit: Fruit): Uni<Response> = repository.save(fruit)
             .onItem().transform { id -> URI.create("/fruits/$id") }
             .onItem().transform { uri -> Response.created(uri).build() }
 
     @PUT
     @Path("{id}")
-    fun updateFruit(@PathParam("id") id: Long, fruit: Fruit): Uni<Response> = service.update(id, fruit)
+    fun updateFruit(@PathParam("id") id: Long, fruit: Fruit): Uni<Response> = repository.update(id, fruit)
             .onItem().transform { updated -> if (updated) Response.Status.OK else Response.Status.NOT_FOUND }
             .onItem().transform { status -> Response.status(status).build() }
 
     @DELETE
     @Path("{id}")
-    fun deleteFruit(@PathParam("id") id: Long): Uni<Response> = service.delete(id)
+    fun deleteFruit(@PathParam("id") id: Long): Uni<Response> = repository.delete(id)
             .onItem().transform { deleted -> if (deleted) Response.Status.NO_CONTENT else Response.Status.NOT_FOUND }
             .onItem().transform { status -> Response.status(status).build() }
 }
